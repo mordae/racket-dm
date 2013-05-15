@@ -134,4 +134,18 @@
     (dm_task_update_nodes)))
 
 
+(define/contract (dm-suspend name)
+                 (-> string? void?)
+  (let ((task (dm_task_create 'suspend)))
+    (dm_task_set_name task name)
+    (dm_task_run task)))
+
+
+(define/contract (dm-resume name)
+                 (-> string? void?)
+  (let ((task (dm_task_create 'resume)))
+    (dm_task_set_name task name)
+    (dm_task_run task)))
+
+
 ; vim:set ts=2 sw=2 et:
