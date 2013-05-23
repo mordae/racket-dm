@@ -10,6 +10,9 @@
 
 (require "ffi.rkt")
 
+(provide (all-defined-out))
+
+
 (define-struct/contract dm-info
   ((exists         boolean?)
    (suspended      boolean?)
@@ -30,9 +33,6 @@
    (type   symbol?)
    (params (listof (or/c string? integer?))))
   #:transparent)
-
-
-(provide (all-defined-out))
 
 
 (define/contract (dm-list)
