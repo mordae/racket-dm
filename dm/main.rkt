@@ -8,7 +8,7 @@
          racket/contract
          racket/string)
 
-(require "ffi.rkt")
+(require "private/ffi.rkt")
 
 (provide (all-defined-out))
 
