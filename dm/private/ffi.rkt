@@ -5,12 +5,13 @@
 
 (require racket/contract
          (rename-in ffi/unsafe (-> -->))
-         ffi/unsafe/define)
+         ffi/unsafe/define
+         throw)
 
 (provide (all-defined-out))
 
 
-(define-struct/contract (exn:fail:dm exn:fail) () #:transparent)
+(define-struct/contract (exn:fail:dm exn:fail) ())
 
 
 (define-ffi-definer define-scheme #f)
@@ -20,9 +21,10 @@
 (define/contract (check-result func result)
                  (-> symbol? any/c void?)
   (unless result
-    (raise (make-exn:fail:dm
-             (format "dm: ~a returned ~a\n" func result)
-             (current-continuation-marks)))))
+    (throw exn:fail:dm
+           'dm "operation failed"
+           "function" func
+           "result" result)))
 
 
 (define (with-finalizer result finalizer)
