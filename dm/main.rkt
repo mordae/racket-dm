@@ -4,7 +4,7 @@
 ;
 
 (require (rename-in ffi/unsafe (-> -->))
-         (planet williams/uuid/uuid)
+         williams/uuid1/uuid
          racket/contract
          racket/string)
 
