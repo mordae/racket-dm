@@ -6,7 +6,7 @@
 (require racket/contract
          (rename-in ffi/unsafe (-> -->))
          ffi/unsafe/define
-         throw)
+         misc1/throw)
 
 (provide (all-defined-out))
 
