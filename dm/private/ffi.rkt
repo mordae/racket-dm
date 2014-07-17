@@ -3,48 +3,31 @@
 ; libdevmapper.so.1.02 bindings
 ;
 
+(require
+  (rename-in ffi/unsafe (-> -->)))
+
 (require racket/contract
-         (rename-in ffi/unsafe (-> -->))
          ffi/unsafe/define
+         ffi/unsafe/alloc)
+
+(require misc1/syntax
          misc1/throw)
 
-(provide (all-defined-out))
+(provide
+  (all-defined-out))
 
 
-(define-struct/contract (exn:fail:dm exn:fail) ())
+(struct exn:fail:dm exn:fail
+  ())
 
 
 (define-ffi-definer define-scheme #f)
 (define-ffi-definer define-dm (ffi-lib "libdevmapper" '("1.02")))
 
 
-(define/contract (check-result func result)
-                 (-> symbol? any/c void?)
+(define (check-result func result)
   (unless result
-    (throw exn:fail:dm
-           'dm "operation failed"
-           "function" func
-           "result" result)))
-
-
-(define (with-finalizer result finalizer)
-  (when result
-    (register-finalizer result finalizer))
-  result)
-
-
-(define _string/utf-8/free
-  (make-ctype _bytes
-              (lambda (str)
-                (if str
-                  (string->bytes/utf-8 str)
-                  #f))
-              (lambda (bstr)
-                (if bstr
-                  (let ((str (bytes->string/utf-8 bstr)))
-                    (free bstr)
-                    str)
-                  #f))))
+    (throw exn:fail:dm 'dm "operation failed" "function" func)))
 
 
 (define-cpointer-type _dm-task-pointer)
@@ -61,16 +44,16 @@
 
 
 (define-cstruct _struct-dm-info
-  ((exists         _bool)
-   (suspended      _bool)
-   (live-table     _bool)
-   (inactive-table _bool)
-   (open-count     _int32)
-   (event-nr       _uint32)
-   (major          _uint32)
-   (minor          _uint32)
-   (read-only      _bool)
-   (target-count   _int32)))
+  ((exists?         _bool)
+   (suspended?      _bool)
+   (live-table?     _bool)
+   (inactive-table? _bool)
+   (open-count      _int32)
+   (event-number    _uint32)
+   (major           _uint32)
+   (minor           _uint32)
+   (read-only?      _bool)
+   (target-count    _int32)))
 
 
 (define-cstruct _dm-names
@@ -79,12 +62,12 @@
 
 
 (define-dm dm_task_destroy
-           (_fun _dm-task-pointer --> _void))
+           (_fun _dm-task-pointer --> _void)
+           #:wrap (releaser))
 
 (define-dm dm_task_create
-           (_fun _dm-task-type
-                 --> (result : _dm-task-pointer)
-                 --> (with-finalizer result dm_task_destroy)))
+           (_fun _dm-task-type --> _dm-task-pointer)
+           #:wrap (allocator dm_task_destroy))
 
 (define-dm dm_task_set_name
            (_fun _dm-task-pointer
@@ -140,15 +123,13 @@
                  _pointer
                  (start : (_ptr o _uint64))
                  (length : (_ptr o _uint64))
-                 (ttype : (_ptr o _string/utf-8/free))
-                 (params : (_ptr o _string/utf-8/free))
+                 (ttype : (_ptr o _string/utf-8))
+                 (params : (_ptr o _string/utf-8))
                  --> (next : _pointer)
                  --> (values start length ttype params next)))
 
 (define-dm dm_task_get_names
-           (_fun _dm-task-pointer
-                 --> (result : _dm-names-pointer)
-                 --> (with-finalizer result free)))
+           (_fun _dm-task-pointer --> _dm-names-pointer))
 
 
 ; vim:set ts=2 sw=2 et:

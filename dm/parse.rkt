@@ -6,12 +6,13 @@
 (require racket/contract
          racket/generator)
 
-(provide (all-defined-out))
+(provide
+  (contract-out
+    (dm-parse-multipath (-> (listof (or/c string? integer?)) hash?))))
 
 
 ;; Convert linear multipath mapping parameters to a tree.
-(define/contract (dm-parse-multipath params)
-                 (-> (listof (or/c string? integer?)) hash?)
+(define (dm-parse-multipath params)
   (define next-param
     (sequence->generator (in-list params)))
 
