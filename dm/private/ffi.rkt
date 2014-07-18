@@ -6,12 +6,10 @@
 (require
   (rename-in ffi/unsafe (-> -->)))
 
-(require racket/contract
-         ffi/unsafe/define
+(require ffi/unsafe/define
          ffi/unsafe/alloc)
 
-(require misc1/syntax
-         misc1/throw)
+(require misc1/throw)
 
 (provide
   (all-defined-out))
