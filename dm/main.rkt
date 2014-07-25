@@ -9,7 +9,7 @@
 (require racket/contract
          racket/string)
 
-(require williams/uuid1/uuid)
+(require libuuid)
 
 (require "private/ffi.rkt")
 
@@ -120,7 +120,7 @@
 (define (dm-create! name #:uuid (uuid #f) . targets)
   (let ((task (dm_task_create 'create)))
     (dm_task_set_name task name)
-    (dm_task_set_uuid task (if uuid uuid (uuid->string (make-uuid-4))))
+    (dm_task_set_uuid task (if uuid uuid (uuid-generate)))
     (for ((target targets))
       (dm_task_add_target task
                           (dm-target-start target)
